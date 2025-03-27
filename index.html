@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Расширение в 16:9</title>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        canvas { max-width: 100%; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h2>Загрузите квадратное изображение</h2>
+    <input type="file" id="upload" accept="image/*">
+    <br><br>
+    <canvas id="canvas"></canvas>
+    <br>
+    <a id="download" style="display: none;" download="output.png">Скачать изображение</a>
+
+    <script>
+        document.getElementById('upload').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.getElementById('canvas');
+                const ctx = canvas.getContext('2d');
+
+                const originalSize = img.width; // Квадратное изображение
+                const newWidth = Math.round(originalSize * 16 / 9);
+                const newHeight = originalSize;
+
+                canvas.width = newWidth;
+                canvas.height = newHeight;
+
+                // Размытый фон
+                ctx.filter = 'blur(20px)'; 
+                ctx.drawImage(img, 0, 0, newWidth, newHeight);
+                ctx.filter = 'none';
+
+                // Оригинальное изображение по центру
+                const offsetX = (newWidth - originalSize) / 2;
+                ctx.drawImage(img, offsetX, 0, originalSize, originalSize);
+
+                // Кнопка скачивания
+                const download = document.getElementById('download');
+                download.href = canvas.toDataURL();
+                download.style.display = 'block';
+            };
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    </script>
+</body>
+</html>
